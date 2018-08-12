@@ -37,9 +37,13 @@ def update_results(query, tender_df):
         if database_df.equals(tender_df):
             print("No new entries found for query -", query)
         else:
+            #if not tender_df.isnull().sum() == len(tender_df.columns):
+            print(type(tender_df))
             print("Updating database for query -", query)
             database_df = tender_df.copy(deep=True)
             database_df.to_csv(filename)
+            #else:
+                #print("No new entries found for query -", query)
     else:
         tender_df.to_csv(filename)
 
@@ -64,4 +68,5 @@ if __name__ == '__main__':
         #print('*'*10, query, '*'*10)
         #print(tender_df_preprocessed)
 
-        update_results(query, tender_df_preprocessed)
+        if 'No Records Found' not in tender_df_preprocessed.index:
+            update_results(query, tender_df_preprocessed)

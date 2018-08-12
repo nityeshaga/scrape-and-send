@@ -17,13 +17,14 @@ def preprocess(subject_df):
     subject_df = subject_df.iloc[1:].copy(deep=True)
     subject_df.rename(columns=headers, inplace=True)
     
+    # set row indices
     subject_df.set_index('Sl.No.', inplace=True)
 
     return subject_df
 
-def update_results(query, tender_df):
+def update_results(query, results_df):
     '''
-    Updates the datebase related to the query with the entries in tender_df
+    Updates the datebase related to the query with the entries in results_df
 
     :param query: The search query entered on the website
     :param tender_df: A pandas DataFrame that stores the results returned by 
@@ -34,18 +35,14 @@ def update_results(query, tender_df):
 
     if os.path.isfile('./'+filename):
         database_df = pd.read_csv(filename, index_col='Sl.No.')
-        if database_df.equals(tender_df):
+        if database_df.equals(results_df):
             print("No new entries found for query -", query)
         else:
-            #if not tender_df.isnull().sum() == len(tender_df.columns):
-            print(type(tender_df))
             print("Updating database for query -", query)
-            database_df = tender_df.copy(deep=True)
+            database_df = results_df.copy(deep=True)
             database_df.to_csv(filename)
-            #else:
-                #print("No new entries found for query -", query)
     else:
-        tender_df.to_csv(filename)
+        results_df.to_csv(filename)
 
 if __name__ == '__main__':
 
@@ -64,9 +61,6 @@ if __name__ == '__main__':
         tender_df = pd.read_html(str(tender_table))
 
         tender_df_preprocessed = preprocess(tender_df[0])
-
-        #print('*'*10, query, '*'*10)
-        #print(tender_df_preprocessed)
 
         if 'No Records Found' not in tender_df_preprocessed.index:
             update_results(query, tender_df_preprocessed)

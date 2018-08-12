@@ -35,9 +35,9 @@ def update_results(query, tender_df):
     if os.path.isfile('./'+filename):
         database_df = pd.read_csv(filename, index_col='Sl.No.')
         if database_df.equals(tender_df):
-            print("No new entries found")
+            print("No new entries found for query -", query)
         else:
-            print("Updating database")
+            print("Updating database for query -", query)
             database_df = tender_df.copy(deep=True)
             database_df.to_csv(filename)
     else:
@@ -61,8 +61,7 @@ if __name__ == '__main__':
 
         tender_df_preprocessed = preprocess(tender_df[0])
 
-        print('*'*10, query, '*'*10)
-        print(tender_df_preprocessed)
-        #print(type(tender_df[0]))
+        #print('*'*10, query, '*'*10)
+        #print(tender_df_preprocessed)
 
         update_results(query, tender_df_preprocessed)

@@ -1,9 +1,53 @@
 import mechanicalsoup as msoup
 import pandas as pd
 import os.path
+import smtplib
+from getpass import getpass
 
 SEARCH_QUERIES = ['pp bag', 'fibc bag', 'jumbo bag', 'leno bag']
 
+def setup_server():
+    '''
+    Sets up an SMTP server.
+
+    Returns the SMTP object and sender's email id
+    '''
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+    sender_email_id = input("Enter the serder's email id: ").strip()
+    sender_pwd = getpass()
+    server.login(sender_email_id, sender_pwd)
+
+    return server, sender_email_id
+
+def create_msg_content(query, results_df):
+    '''
+    Constructs an appropriate email using the search query and the
+    results present in results_df
+
+    :param query: The search query.
+    :param results_df: DataFrame object that stores the results of query
+
+    Returns the message as a string
+    '''
+    return "This query has new results " + query
+    
+def update_with_email(query, results_df):
+    '''
+    Sends email to the client_email_id notifying about the results
+    found for query.
+
+    :param query: The search query
+    :param results_df: DataFrame object that stores the results of query
+    '''
+    server, sender_email_id = setup_server()
+    client_email_id = input("Enter the client's email id: ")
+    content = create_msg_content(query, results_df)
+    server.sendmail(sender_email_id, client_email_id, content)
+    server.quit()
+        
 def preprocess(subject_df):
     '''
     Preprocesses the given DataFrame object by setting appropriate row
@@ -41,8 +85,10 @@ def update_results(query, results_df):
             print("Updating database for query -", query)
             database_df = results_df.copy(deep=True)
             database_df.to_csv(filename)
+            update_with_email(query, results_df)
     else:
         results_df.to_csv(filename)
+        update_with_email(query, results_df)
 
 if __name__ == '__main__':
 

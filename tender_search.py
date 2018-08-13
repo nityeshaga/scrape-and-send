@@ -3,6 +3,9 @@ import pandas as pd
 import os.path
 import smtplib
 from getpass import getpass
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from tabulate import tabulate
 
 SEARCH_QUERIES = ['pp bag', 'fibc bag', 'jumbo bag', 'leno bag']
 
@@ -22,17 +25,28 @@ def setup_server():
 
     return server, sender_email_id
 
-def create_msg_content(query, results_df):
+def create_msg_content(query, results_df, sender_email_id, client_email_id):
     '''
     Constructs an appropriate email using the search query and the
     results present in results_df
 
     :param query: The search query.
     :param results_df: DataFrame object that stores the results of query
+    :param sender_email_id: Email address of the sender
+    :param client_email_id: Email address of the client
 
     Returns the message as a string
     '''
-    return "This query has new results " + query
+    message = MIMEMultipart()
+    message['From'] = sender_email_id
+    message['To'] = client_email_id
+    message['Subject'] = "New search results for \"" + query + "\" on eprocure.gov.in"
+
+    body = tabulate(results_df[['e-Published Date', 'Title and Ref.No./Tender Id', 
+        'Organisation Name']], tablefmt='grid')
+    message.attach(MIMEText(body, 'plain'))
+
+    return message.as_string()
     
 def update_with_email(query, results_df):
     '''
@@ -44,7 +58,7 @@ def update_with_email(query, results_df):
     '''
     server, sender_email_id = setup_server()
     client_email_id = input("Enter the client's email id: ")
-    content = create_msg_content(query, results_df)
+    content = create_msg_content(query, results_df, sender_email_id, client_email_id)
     server.sendmail(sender_email_id, client_email_id, content)
     server.quit()
         

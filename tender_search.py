@@ -7,7 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from tabulate import tabulate
 
-SEARCH_QUERIES = ['pp bag', 'fibc bag', 'jumbo bag', 'leno bag']
+SEARCH_QUERIES = ['pp bag', 'fibc bag', 'jumbo bag', 'leno bag', 'bopp bag', 'hdpe bag', 'tarpaulin']
 
 def setup_server():
     '''

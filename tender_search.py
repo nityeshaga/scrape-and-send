@@ -25,13 +25,15 @@ def setup_server():
 
     return server, sender_email_id
 
-def create_msg_content(query, results_df, sender_email_id, client_email_id):
+def create_msg_content(query, results_df, result_url, 
+                       sender_email_id, client_email_id):
     '''
     Constructs an appropriate email using the search query and the
     results present in results_df
 
     :param query: The search query.
     :param results_df: DataFrame object that stores the results of query
+    :param result_url: URL pointing to the search results
     :param sender_email_id: Email address of the sender
     :param client_email_id: Email address of the client
 
@@ -45,20 +47,23 @@ def create_msg_content(query, results_df, sender_email_id, client_email_id):
     body = tabulate(results_df[['e-Published Date', 'Title and Ref.No./Tender Id', 
         'Organisation Name']], tablefmt='grid')
     message.attach(MIMEText(body, 'plain'))
+    message.attach(MIMEText('\n\n URL:'+result_url, 'plain'))
 
     return message.as_string()
     
-def update_with_email(query, results_df):
+def update_with_email(query, results_df, result_url):
     '''
     Sends email to the client_email_id notifying about the results
     found for query.
 
     :param query: The search query
     :param results_df: DataFrame object that stores the results of query
+    :param result_url: URL pointing to the search results
     '''
     server, sender_email_id = setup_server()
     client_email_id = input("Enter the client's email id: ")
-    content = create_msg_content(query, results_df, sender_email_id, client_email_id)
+    content = create_msg_content(query, results_df, result_url, 
+                                 sender_email_id, client_email_id)
     server.sendmail(sender_email_id, client_email_id, content)
     server.quit()
         
@@ -80,13 +85,14 @@ def preprocess(subject_df):
 
     return subject_df
 
-def update_results(query, results_df):
+def update_results(query, results_df, result_url):
     '''
     Updates the datebase related to the query with the entries in results_df
 
     :param query: The search query entered on the website
     :param tender_df: A pandas DataFrame that stores the results returned by 
                       the website 
+    :param result_url: URL pointing to the search results
     '''
 
     filename = query.replace(' ', '_') + '_tenders.csv'
@@ -99,10 +105,10 @@ def update_results(query, results_df):
             print("Updating database for query -", query)
             database_df = results_df.copy(deep=True)
             database_df.to_csv(filename)
-            update_with_email(query, results_df)
+            update_with_email(query, results_df, result_url)
     else:
         results_df.to_csv(filename)
-        update_with_email(query, results_df)
+        update_with_email(query, results_df, result_url)
 
 if __name__ == '__main__':
 
@@ -123,4 +129,4 @@ if __name__ == '__main__':
         tender_df_preprocessed = preprocess(tender_df[0])
 
         if 'No Records Found' not in tender_df_preprocessed.index:
-            update_results(query, tender_df_preprocessed)
+            update_results(query, tender_df_preprocessed, browser.get_url())

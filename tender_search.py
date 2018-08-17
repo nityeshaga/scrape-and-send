@@ -39,13 +39,14 @@ def update_results(query, results_df, result_url):
     if os.path.isfile('./'+filename):
         database_df = pd.read_csv(filename, index_col='Sl.No.')
         if database_df.equals(results_df):
-            print("No new entries found for query -", query)
+            print("No new entries found for query ")
         else:
-            print("Updating database for query -", query)
+            print("Updating database for query ")
             database_df = results_df.copy(deep=True)
             database_df.to_csv(filename)
             update_with_email(query, results_df, result_url)
     else:
+        print("Creating new database for query ")
         results_df.to_csv(filename)
         update_with_email(query, results_df, result_url)
 
@@ -54,6 +55,7 @@ if __name__ == '__main__':
     browser = msoup.StatefulBrowser()
 
     for query in SEARCH_QUERIES:
+        print("Processing query - " + query + " ...")
         browser.open("https://eprocure.gov.in/cppp/tendersearch")
         browser.select_form()
         browser.select_form('form[id="tendersearch-form"]')
@@ -67,5 +69,7 @@ if __name__ == '__main__':
 
         tender_df_preprocessed = preprocess(tender_df[0])
 
-        if 'No Records Found' not in tender_df_preprocessed.index:
+        if 'No Records Found' in tender_df_preprocessed.index:
+            print("Search returned no results")
+        else:
             update_results(query, tender_df_preprocessed, browser.get_url())

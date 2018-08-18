@@ -9,24 +9,6 @@ SEARCH_QUERIES = ['pp bag', 'fibc bag', 'jumbo bag', 'leno bag', 'bopp bag', 'hd
 
 SCRAPERS = {'eprocure central': EprocureCentral}
         
-def preprocess(subject_df):
-    '''
-    Preprocesses the given DataFrame object by setting appropriate row
-    and column headers
-
-    :param subject_df: pandas DataFrame object
-    '''
-
-    # set column headers
-    headers = subject_df.iloc[0]
-    subject_df = subject_df.iloc[1:].copy(deep=True)
-    subject_df.rename(columns=headers, inplace=True)
-    
-    # set row indices
-    subject_df.set_index('Sl.No.', inplace=True)
-
-    return subject_df
-
 def update_results(scraper, query, results_df, result_url):
     '''
     Updates the datebase of scraper related to the query with the 
@@ -65,9 +47,8 @@ if __name__ == '__main__':
             print("Processing query - " + query + " ...")
 
             tender_df, url = SCRAPERS[scraper].scrape(query)
-            tender_df_preprocessed = preprocess(tender_df)
 
-            if 'No Records Found' in tender_df_preprocessed.index:
+            if 'No Records Found' in tender_df.index:
                 print("Search returned no results")
             else:
-                update_results(scraper, query, tender_df_preprocessed, url)
+                update_results(scraper, query, tender_df, url)

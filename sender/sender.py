@@ -39,8 +39,7 @@ def create_msg_content(query, results_df, result_url,
     message['To'] = client_email_id
     message['Subject'] = "New search results for \"" + query + "\" on eprocure.gov.in"
 
-    body = tabulate(results_df[['e-Published Date', 'Title and Ref.No./Tender Id', 
-        'Organisation Name']], tablefmt='grid')
+    body = tabulate(results_df, tablefmt='grid')
     message.attach(MIMEText(body, 'plain'))
     message.attach(MIMEText('\n\n URL:'+result_url, 'plain'))
 

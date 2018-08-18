@@ -21,4 +21,4 @@ class EprocureCentral():
         tender_table = result_page.find('table', attrs={'id': 'table'})
         tender_df = pd.read_html(str(tender_table))
 
-        return tender_df[0], cls.URL
+        return tender_df[0], browser.get_url()

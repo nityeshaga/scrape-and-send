@@ -6,6 +6,25 @@ class EprocureCentral():
     URL = "https://eprocure.gov.in/cppp/tendersearch"
 
     @classmethod
+    def preprocess(cls, results_df):
+        '''
+        Preprocesses the given DataFrame object by setting appropriate row
+        and column headers
+
+        :param subject_df: pandas DataFrame object
+        '''
+
+        # set column headers
+        headers = results_df.iloc[0]
+        results_df = results_df.iloc[1:].copy(deep=True)
+        results_df.rename(columns=headers, inplace=True)
+        
+        # set row indices
+        results_df.set_index('Sl.No.', inplace=True)
+
+        return results_df
+
+    @classmethod
     def scrape(cls, query):
 
         browser = msoup.StatefulBrowser()
@@ -21,4 +40,4 @@ class EprocureCentral():
         tender_table = result_page.find('table', attrs={'id': 'table'})
         tender_df = pd.read_html(str(tender_table))
 
-        return tender_df[0], browser.get_url()
+        return cls.preprocess(tender_df[0]), browser.get_url()

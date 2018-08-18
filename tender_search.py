@@ -1,10 +1,13 @@
-import mechanicalsoup as msoup
 import pandas as pd
 import os.path
 
 from sender.sender import update_with_email
 
+from scraper.eprocure_central.eprocure_central import EprocureCentral
+
 SEARCH_QUERIES = ['pp bag', 'fibc bag', 'jumbo bag', 'leno bag', 'bopp bag', 'hdpe bag', 'tarpaulin']
+
+SCRAPERS = {'eprocure central': EprocureCentral}
         
 def preprocess(subject_df):
     '''
@@ -24,10 +27,12 @@ def preprocess(subject_df):
 
     return subject_df
 
-def update_results(query, results_df, result_url):
+def update_results(scraper, query, results_df, result_url):
     '''
-    Updates the datebase related to the query with the entries in results_df
+    Updates the datebase of scraper related to the query with the 
+    results in results_df.
 
+    :param scraper: The web scraper corresponding to the results
     :param query: The search query entered on the website
     :param tender_df: A pandas DataFrame that stores the results returned by 
                       the website 
@@ -35,41 +40,34 @@ def update_results(query, results_df, result_url):
     '''
 
     filename = query.replace(' ', '_') + '_tenders.csv'
+    filepath = './scraper/' + \
+               scraper.replace(' ', '_') + '/' + \
+               filename
 
-    if os.path.isfile('./'+filename):
-        database_df = pd.read_csv(filename, index_col='Sl.No.')
+    if os.path.isfile(filepath):
+        database_df = pd.read_csv(filepath, index_col='Sl.No.')
         if database_df.equals(results_df):
             print("No new entries found for query ")
         else:
             print("Updating database for query ")
             database_df = results_df.copy(deep=True)
-            database_df.to_csv(filename)
+            database_df.to_csv(filepath)
             update_with_email(query, results_df, result_url)
     else:
         print("Creating new database for query ")
-        results_df.to_csv(filename)
+        results_df.to_csv(filepath)
         update_with_email(query, results_df, result_url)
 
 if __name__ == '__main__':
 
-    browser = msoup.StatefulBrowser()
+    for scraper in SCRAPERS:
+        for query in SEARCH_QUERIES:
+            print("Processing query - " + query + " ...")
 
-    for query in SEARCH_QUERIES:
-        print("Processing query - " + query + " ...")
-        browser.open("https://eprocure.gov.in/cppp/tendersearch")
-        browser.select_form()
-        browser.select_form('form[id="tendersearch-form"]')
-        browser["s_keyword"] = query
-        response = browser.submit_selected()
+            tender_df, url = SCRAPERS[scraper].scrape(query)
+            tender_df_preprocessed = preprocess(tender_df)
 
-        # get results
-        result_page = browser.get_current_page()
-        tender_table = result_page.find('table', attrs={'id': 'table'})
-        tender_df = pd.read_html(str(tender_table))
-
-        tender_df_preprocessed = preprocess(tender_df[0])
-
-        if 'No Records Found' in tender_df_preprocessed.index:
-            print("Search returned no results")
-        else:
-            update_results(query, tender_df_preprocessed, browser.get_url())
+            if 'No Records Found' in tender_df_preprocessed.index:
+                print("Search returned no results")
+            else:
+                update_results(scraper, query, tender_df_preprocessed, url)

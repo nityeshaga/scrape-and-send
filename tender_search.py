@@ -36,11 +36,11 @@ def update_results(scraper, query, results_df, result_url):
             print("Updating database for query ")
             database_df = results_df.copy(deep=True)
             database_df.to_csv(filepath)
-            update_with_email(query, results_df, result_url)
+            update_with_email(scraper, query, results_df, result_url)
     else:
         print("Creating new database for query ")
         results_df.to_csv(filepath)
-        update_with_email(query, results_df, result_url)
+        update_with_email(scraper, query, results_df, result_url)
 
 if __name__ == '__main__':
 

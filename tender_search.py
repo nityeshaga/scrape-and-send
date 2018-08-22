@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
             tender_df, url = SCRAPERS[scraper].scrape(query)
 
-            if 'No Records Found' in tender_df.index:
+            if tender_df is None:
                 print("Search returned no results")
             else:
                 update_results(scraper, query, tender_df, url)

@@ -4,11 +4,13 @@ import os.path
 from sender.sender import update_with_email
 
 from scraper.eprocure_central.eprocure_central import EprocureCentral
+from scraper.eprocure_state.eprocure_state import EprocureState
 
 SEARCH_QUERIES = ['pp bag', 'fibc bag', 'jumbo bag', 'leno bag', 'bopp bag', 'hdpe bag', 'tarpaulin']
 
-SCRAPERS = {'eprocure central': EprocureCentral}
-        
+SCRAPERS = {'eprocure central': EprocureCentral,
+            'eprocure state': EprocureState}
+
 def update_results(scraper, query, results_df, result_url):
     '''
     Updates the datebase of scraper related to the query with the 
@@ -43,6 +45,7 @@ def update_results(scraper, query, results_df, result_url):
 if __name__ == '__main__':
 
     for scraper in SCRAPERS:
+        print("Analysing " + scraper + "...")
         for query in SEARCH_QUERIES:
             print("Processing query - " + query + " ...")
 

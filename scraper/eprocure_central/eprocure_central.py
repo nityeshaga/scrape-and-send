@@ -22,8 +22,7 @@ class EprocureCentral():
         # set row indices
         results_df.set_index('Sl.No.', inplace=True)
 
-        return results_df[['e-Published Date', 
-            'Title and Ref.No./Tender Id', 'Organisation Name']]
+        return results_df[['e-Published Date', 'Title and Ref.No./Tender Id', 'Organisation Name']]
 
     @classmethod
     def scrape(cls, query):

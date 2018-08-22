@@ -30,6 +30,13 @@ class EprocureState():
             'Title and Ref.No./Tender Id', 'State Name']]
 
     @classmethod
+    def check_empty(cls, results_df):
+        if 'No Records Found' in results_df.index:
+            return True
+        else:
+            return False
+
+    @classmethod
     def scrape(cls, query):
 
         chrome_options = Options()
@@ -46,4 +53,9 @@ class EprocureState():
         tender_table = soup.find('table', attrs={'id': 'table'})
         tender_df = pd.read_html(str(tender_table))
 
-        return cls.preprocess(tender_df[0]), driver.current_url
+        results_df = cls.preprocess(tender_df[0])
+        
+        if cls.check_empty(results_df):
+            return None, None
+        else:
+            return results_df, driver.current_url

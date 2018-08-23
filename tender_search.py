@@ -5,11 +5,13 @@ from sender.sender import update_with_email
 
 from scraper.eprocure_central.eprocure_central import EprocureCentral
 from scraper.eprocure_state.eprocure_state import EprocureState
+from scraper.SAIL.SAIL import SAIL
 
 SEARCH_QUERIES = ['pp bag', 'fibc bag', 'jumbo bag', 'leno bag', 'bopp bag', 'hdpe bag', 'tarpaulin']
 
-SCRAPERS = {'eprocure central': EprocureCentral,
-            'eprocure state': EprocureState}
+#SCRAPERS = {'eprocure central': EprocureCentral,
+#            'eprocure state': EprocureState,
+SCRAPERS = {'SAIL': SAIL}
 
 def update_results(scraper, query, results_df, result_url):
     '''

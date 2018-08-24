@@ -1,3 +1,5 @@
+import time
+
 import pandas as pd
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
@@ -49,13 +51,18 @@ class EprocureState():
         search_element.send_keys(query)
         search_button.click()
 
+        time.sleep(5)
+
         soup = BeautifulSoup(driver.page_source, 'lxml')
         tender_table = soup.find('table', attrs={'id': 'table'})
         tender_df = pd.read_html(str(tender_table))
 
         results_df = cls.preprocess(tender_df[0])
+        results_url = driver.current_url
         
+        driver.quit()
+
         if cls.check_empty(results_df):
             return None, None
         else:
-            return results_df, driver.current_url
+            return results_df, results_url

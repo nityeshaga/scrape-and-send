@@ -9,9 +9,9 @@ from scraper.SAIL.SAIL import SAIL
 
 SEARCH_QUERIES = ['pp bag', 'fibc bag', 'jumbo bag', 'leno bag', 'bopp bag', 'hdpe bag', 'tarpaulin']
 
-#SCRAPERS = {'eprocure central': EprocureCentral,
-#            'eprocure state': EprocureState,
-SCRAPERS = {'SAIL': SAIL}
+SCRAPERS = {'eprocure central': EprocureCentral,
+            'eprocure state': EprocureState,
+            'SAIL': SAIL}
 
 def update_results(scraper, query, results_df, result_url):
     '''

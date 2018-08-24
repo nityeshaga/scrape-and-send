@@ -45,7 +45,7 @@ class EprocureState():
         chrome_options.add_argument("--headless")
         driver = webdriver.Chrome(executable_path='/home/nityeshaga/Downloads/chromedriver', chrome_options=chrome_options)
 
-        driver.get("https://eprocure.gov.in/mmp/latestactivetenders")
+        driver.get(cls.URL)
         search_element = driver.find_element_by_id("edit-s-keyword")
         search_button = driver.find_element_by_id("edit-save")
         search_element.send_keys(query)

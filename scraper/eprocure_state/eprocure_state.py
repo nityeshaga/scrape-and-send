@@ -33,6 +33,15 @@ class EprocureState():
 
     @classmethod
     def check_empty(cls, results_df):
+        '''
+        Checks if the results_df is empty or not
+
+        :param results_df: Pandas DataFrame object containing the
+            scraping results
+
+        Returns: True if empty, False otherwise
+        '''
+
         if 'No Records Found' in results_df.index:
             return True
         else:
@@ -40,6 +49,13 @@ class EprocureState():
 
     @classmethod
     def scrape(cls, query):
+        '''
+        Method that actually scrapes the website and returns results if relevant.
+
+        :param query: The search query to be entered in the search box
+
+        Returns: A pandas DataFrame object containing the results of the scraping
+        '''
 
         chrome_options = Options()
         chrome_options.add_argument("--headless")

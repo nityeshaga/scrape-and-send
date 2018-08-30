@@ -6,6 +6,10 @@ from tabulate import tabulate
 from functools import wraps
 
 def try_until_success(func):
+    '''
+    Function decorator to repeatedly call func in case of 
+    smtplib.SMTPAuthenticationError
+    '''
     def wrapper(*args, **kwargs):
         for i in range(5):
             try:
@@ -17,6 +21,13 @@ def try_until_success(func):
 
 @try_until_success
 def login_user(server):
+    '''
+    Asks the user for email id / password and logs in the server
+
+    :param server: smtplib.SMTP object
+
+    Returns: The email id entered by the user
+    '''
     sender_email_id = input("Enter the serder's email id: ").strip()
     sender_pwd = getpass()
     server.login(sender_email_id, sender_pwd)

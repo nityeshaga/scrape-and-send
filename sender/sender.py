@@ -3,6 +3,24 @@ from getpass import getpass
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from tabulate import tabulate
+from functools import wraps
+
+def try_until_success(func):
+    def wrapper(*args, **kwargs):
+        for i in range(5):
+            try:
+                return func(*args, **kwargs)
+            except smtplib.SMTPAuthenticationError:
+                pass
+        raise smtplib.SMTPAuthenticationError
+    return wrapper
+
+@try_until_success
+def login_user(server):
+    sender_email_id = input("Enter the serder's email id: ").strip()
+    sender_pwd = getpass()
+    server.login(sender_email_id, sender_pwd)
+    return sender_email_id
 
 def setup_server():
     '''
@@ -14,9 +32,7 @@ def setup_server():
     server.ehlo()
     server.starttls()
     server.ehlo()
-    sender_email_id = input("Enter the serder's email id: ").strip()
-    sender_pwd = getpass()
-    server.login(sender_email_id, sender_pwd)
+    sender_email_id = login_user(server)
 
     return server, sender_email_id
 

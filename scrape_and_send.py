@@ -13,6 +13,23 @@ SCRAPERS = {'eprocure central': EprocureCentral,
             'eprocure state': EprocureState,
             'SAIL': SAIL}
 
+def new_results(results_df, database_df):
+    '''
+    Checks if results_df contains results that are not present
+    in database_df.
+    
+    :param results_df: Pandas DataFrame object that contains results
+        from web scraping
+    :param database_df: Pandas DataFrame object that contain the
+        entries stored in the database
+
+    Returns: True if new results present, False otherwise
+    '''
+    merge_df = results_df.merge(database_df, on=list(database_df.columns),
+                                how='left', indicator=True)
+    return not merge_df.loc[merge_df['_merge']=='left_only', 
+                            list(database_df.columns)].empty
+
 def update_results(scraper, query, results_df, result_url):
     '''
     Updates the datebase of scraper related to the query with the 
@@ -32,13 +49,13 @@ def update_results(scraper, query, results_df, result_url):
 
     if os.path.isfile(filepath):
         database_df = pd.read_csv(filepath, index_col='Sl.No.')
-        if database_df.equals(results_df):
-            print("No new entries found for query ")
-        else:
+        if new_results(results_df, database_df):
             print("Updating database for query ")
             database_df = results_df.copy(deep=True)
             database_df.to_csv(filepath)
             update_with_email(scraper, query, results_df, result_url)
+        else:
+            print("No new entries found for query ")
     else:
         print("Creating new database for query ")
         results_df.to_csv(filepath)
